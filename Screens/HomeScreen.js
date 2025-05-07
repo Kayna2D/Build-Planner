@@ -26,7 +26,7 @@ const HomeScreen = ({ navigation }) => {
         <TouchableOpacity
           key={jogo.id}
           style={styles.gameCard}
-          onPress={() => navigation.navigate('Builds', { jogoId: jogo.id })}
+          onPress={() => navigation.navigate('Builds', { jogoId: jogo.id, gameName: jogo.nome })}
         >
         <Image source={jogo.imagem} style={styles.gameImage} />
         <View style={styles.gameInfo}>
