@@ -5,16 +5,22 @@ const HomeScreen = ({ navigation }) => {
   const listaJogos = [
     {
       id: 1,
-      nome: 'Mass Effect',
-      imagem: require('../assets/me.jpg'),
-      descricao: 'Monte seu Comandante Shepard'
-    },
-    {
-      id: 2,
       nome: 'Dragon Age: Origins',
       imagem: require('../assets/dao.png'),
       descricao: 'Monte seu Grey Warden'
     },
+    {
+      id: 2,
+      nome: 'Dragon Age II',
+      imagem: require('../assets/da2.jpg'),
+      descricao: 'Monte seu Hawke'
+    },
+    {
+      id: 3,
+      nome: 'Dragon Age: Inquisition',
+      imagem: require('../assets/dai.jpg'),
+      descricao: 'Monte seu Inquisitor'
+    }
   ];
 
   return (
