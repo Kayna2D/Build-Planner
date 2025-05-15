@@ -18,7 +18,9 @@ const BuildListScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (jogoId) {
-      setFilteredBuilds(builds.filter(build => build.jogoId === jogoId));
+      setFilteredBuilds(builds.filter(build => 
+        String(build.jogoId) === String(jogoId)
+      ));
     } else {
       setFilteredBuilds(builds);
     }
@@ -27,7 +29,12 @@ const BuildListScreen = ({ route, navigation }) => {
   const loadBuilds = async () => {
     try {
       const savedBuilds = await getBuilds();
-      setBuilds(savedBuilds);
+    
+    const validBuilds = savedBuilds.filter(b => 
+      b && typeof b === 'object' && b.id && b.nome
+    );
+    
+    setBuilds(validBuilds);
     } catch (e) {
       console.error('Erro ao carregar', e)
     }
@@ -43,13 +50,18 @@ const BuildListScreen = ({ route, navigation }) => {
   };
 
   const confirmDelete = async (id) => {
-    try {
-      await deleteBuild(id);
-      loadBuilds();
-    } catch (e) {
-      console.error('Erro ao apagar', e);
-    }
-  };
+  try {
+    const updatedBuilds = await deleteBuild(id);
+    
+    setBuilds(updatedBuilds);
+    setFilteredBuilds(updatedBuilds.filter(build => 
+      !jogoId || String(build.jogoId) === String(jogoId)
+    ));
+     
+  } catch (e) {
+    Alert.alert('Erro', 'Não foi possível deletar a build');
+  }
+};
 
   const renderBuildItem = ({ item }) => (
     <TouchableOpacity
@@ -61,7 +73,7 @@ const BuildListScreen = ({ route, navigation }) => {
         style={styles.buildImage}
       />
       <View style={styles.buildInfo}>
-        <Text style={styles.buildName}>{item.name}</Text>
+        <Text style={styles.buildName}>{item.nome}</Text>
         <Text style={styles.buildGame}>{getGameName(item.jogoId)}</Text>
         <Text style={styles.buildDate}>Criada em {new Date(item.createdAt).toLocaleDateString()}</Text>
       </View>
@@ -95,7 +107,7 @@ const BuildListScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>
-        {route.params?.gameName || 'Minhas Builds'}
+        {route.params?.jogoId ? getGameName(route.params.jogoId) : 'Minhas Builds'}
       </Text>
 
       {filteredBuilds.length === 0 ? (
@@ -125,6 +137,7 @@ const BuildListScreen = ({ route, navigation }) => {
       >
         <MaterialIcons name="add" size={30} color="white" />
       </TouchableOpacity>
+      
     </View>
   )
 };
