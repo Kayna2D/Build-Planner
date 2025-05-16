@@ -96,7 +96,7 @@ const BuildEditorScreen = ({ route, navigation }) => {
         ? especializacoes[Math.floor(Math.random() * especializacoes.length)]
         : '';
 
-    const pontosTotal = 30;
+    const pontosTotal = 80;
     const attributes = { ...build.attributes };
     let pontosRestantes = pontosTotal;
 
@@ -104,7 +104,7 @@ const BuildEditorScreen = ({ route, navigation }) => {
       if (index === array.length - 1) {
         attributes[attr] = pontosRestantes;
       } else {
-        const max = Math.min(10, pontosRestantes - (array.length - index - 1));
+        const max = Math.min(40, pontosRestantes - (array.length - index - 1));
         const value = max > 0 ? Math.floor(Math.random() * max) + 1 : 0;
         attributes[attr] = value;
         pontosRestantes -= value;
@@ -260,7 +260,7 @@ const BuildEditorScreen = ({ route, navigation }) => {
                       ...prev,
                       attributes: {
                         ...prev.attributes,
-                        [attr]: Math.min(40, prev.attributes[attr] + 1),
+                        [attr]: Math.min(70, prev.attributes[attr] + 1),
                       },
                     }))
                   }>
@@ -313,23 +313,6 @@ const BuildEditorScreen = ({ route, navigation }) => {
     </View>
   );
 };
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    backgroundColor: '#2a2a2a',
-    color: '#ffffff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  inputAndroid: {
-    backgroundColor: '#2a2a2a',
-    color: '#ffffff',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-});
 
 const styles = StyleSheet.create({
   container: {

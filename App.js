@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from './Screens/HomeScreen';
 import BuildListScreen from './Screens/BuildListScreen';
 import BuildEditorScreen from './Screens/BuildEditorScreen';
+import BuildDetailScreen from './Screens/BuildDetailScreen'
+
 // You can import supported modules from npm
 import { Card } from 'react-native-paper';
 
@@ -20,6 +22,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Builds" component={BuildListScreen} />
         <Stack.Screen name="NewBuild" component={BuildEditorScreen} />
+        <Stack.Screen name="BuildDetails" component={BuildDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
