@@ -15,11 +15,11 @@
     "react-native-sensors": "*",
     "@react-navigation/stack": "*",
     "@react-navigation/native": "*",
-    "@react-native-picker/picker": "2.11.0",
     "react-native-gesture-handler": "~2.24.0",
     "@react-native-community/picker": "*",
     "react-native-safe-area-context": "5.4.0",
-    "@react-native-async-storage/async-storage": "2.1.2"
+    "@react-native-async-storage/async-storage": "2.1.2",
+    "expo-sensors": "~14.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

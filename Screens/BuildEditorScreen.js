@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Platform } from 'react-native';
 import {
   Text,
   TextInput,
@@ -8,10 +9,11 @@ import {
   ScrollView,
   Switch,
   Vibration,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-//import { accelerometer, SensorTypes, setUpdateIntervalForType } from 'react-native-sensors';
-import { Picker } from '@react-native-community/picker';
+import { Accelerometer } from 'expo-sensors';
+import CustomPicker from '../components/CustomPicker';
 import { saveBuild, getBuilds } from '../services/storage';
 import {
   ATTRIBUTES,
@@ -37,7 +39,106 @@ const BuildEditorScreen = ({ route, navigation }) => {
     createdAt: route.params?.buildId ? '' : new Date().toISOString(),
   });
 
-  
+  const [subscription, setSubscription] = useState(null);
+  const [isShaking, setIsShaking] = useState(false);
+
+  useEffect(() => {
+    let subscription;
+    let lastShakeTime = 0;
+
+    const setupAccelerometer = async () => {
+      try {
+        const isAvailable = await Accelerometer.isAvailableAsync();
+        if (!isAvailable) {
+          console.log('Acelerômetro não disponível');
+          return;
+        }
+
+        const { status } = await Accelerometer.getPermissionsAsync();
+        if (status !== 'granted') {
+          await Accelerometer.requestPermissionsAsync();
+        }
+
+        Accelerometer.setUpdateInterval(500);
+        subscription = Accelerometer.addListener((accelerometerData) => {
+          const { x, y, z } = accelerometerData;
+          const acceleration = Math.sqrt(x * x + y * y + z * z);
+          const now = Date.now();
+
+          if (acceleration > 2.5 && now - lastShakeTime > 2000) {
+            lastShakeTime = now;
+            Vibration.vibrate(100);
+            handleRandomBuild();
+          }
+        });
+      } catch (error) {
+        console.log('Erro no acelerômetro:', error);
+      }
+    };
+
+    setupAccelerometer();
+
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
+  }, []);
+
+  const handleRandomBuild = () => {
+    const jogoId = build.jogoId;
+    const classes = CLASSES[jogoId];
+    const classeAleatoria = classes[Math.floor(Math.random() * classes.length)];
+
+    const especializacoes = SPECIALIZATIONS[jogoId][classeAleatoria];
+    const especializacaoAleatoria =
+      especializacoes.length > 0
+        ? especializacoes[Math.floor(Math.random() * especializacoes.length)]
+        : '';
+
+    const pontosTotal = 30;
+    const attributes = { ...build.attributes };
+    let pontosRestantes = pontosTotal;
+
+    Object.keys(attributes).forEach((attr, index, array) => {
+      if (index === array.length - 1) {
+        attributes[attr] = pontosRestantes;
+      } else {
+        const max = Math.min(10, pontosRestantes - (array.length - index - 1));
+        const value = max > 0 ? Math.floor(Math.random() * max) + 1 : 0;
+        attributes[attr] = value;
+        pontosRestantes -= value;
+      }
+    });
+
+    const skills = SKILLS[jogoId][classeAleatoria];
+    const skillsAleatorias = [];
+    const skillCount = Math.min(5, skills.length);
+
+    while (skillsAleatorias.length < skillCount) {
+      const skillAleatoria = skills[Math.floor(Math.random() * skills.length)];
+      if (!skillsAleatorias.includes(skillAleatoria)) {
+        skillsAleatorias.push(skillAleatoria);
+      }
+    }
+
+    setBuild({
+      ...build,
+      nome: `Build ${Math.floor(Math.random() * 1000)}`,
+      classe: classeAleatoria,
+      specialization: especializacaoAleatoria,
+      attributes,
+      skills: skillsAleatorias,
+      favorita: false,
+    });
+
+    Alert.alert('Build Aleatória', 'Uma nova build foi gerada!');
+  };
+
+  const handleManualRandom = () => {
+    Vibration.vibrate(50);
+    handleRandomBuild();
+  };
 
   const handleSave = async () => {
     if (!build.nome) {
@@ -54,7 +155,7 @@ const BuildEditorScreen = ({ route, navigation }) => {
         updatedBuilds = [...savedBuilds];
         updatedBuilds[existingIndex] = build;
       } else {
-        updatedBuilds = [...savedBuilds, build]; 
+        updatedBuilds = [...savedBuilds, build];
       }
 
       await saveBuild(updatedBuilds);
@@ -92,44 +193,47 @@ const BuildEditorScreen = ({ route, navigation }) => {
         {!route.params?.buildId && (
           <>
             <Text style={styles.label}>Jogo:</Text>
-            <Picker
+            <CustomPicker
+              items={JOGOS.map((jogo) => ({
+                label: jogo.nome,
+                value: jogo.id,
+              }))}
               selectedValue={build.jogoId}
               onValueChange={(itemValue) =>
                 setBuild({ ...build, jogoId: itemValue })
               }
-              style={styles.picker}>
-              {JOGOS.map((jogo) => (
-                <Picker.Item key={jogo.id} label={jogo.nome} value={jogo.id} />
-              ))}
-            </Picker>
+              style={styles.picker}
+            />
           </>
         )}
 
         <Text style={styles.label}>Classe:</Text>
-        <Picker
+        <CustomPicker
+          items={CLASSES[build.jogoId].map((cls) => ({
+            label: cls,
+            value: cls,
+          }))}
           selectedValue={build.classe}
           onValueChange={(itemValue) =>
             setBuild({ ...build, classe: itemValue })
           }
-          style={styles.picker}>
-          {CLASSES[build.jogoId].map((cls) => (
-            <Picker.Item key={cls} label={cls} value={cls} />
-          ))}
-        </Picker>
+          style={styles.picker}
+        />
 
         <Text style={styles.label}>Especialização:</Text>
-        <Picker
+        <CustomPicker
+          items={SPECIALIZATIONS[build.jogoId][build.classe].map((spec) => ({
+            label: spec, 
+            value: spec, 
+          }))}
           selectedValue={build.specialization}
           onValueChange={(itemValue) =>
             setBuild({ ...build, specialization: itemValue })
           }
-          style={styles.picker}>
-          {SPECIALIZATIONS[build.jogoId][build.classe].map((spec) => (
-            <Picker.Item key={spec} label={spec} value={spec} />
-          ))}
-        </Picker>
+          style={styles.picker}
+          />
 
-        <Text style={styles.label}>Atributos</Text>
+        <Text style={styles.label}>Atributos:</Text>
         <View style={styles.attributesContainer}>
           {Object.entries(build.attributes).map(([attr, value]) => (
             <View key={attr} style={styles.attributeRow}>
@@ -195,6 +299,13 @@ const BuildEditorScreen = ({ route, navigation }) => {
           />
         </View>
 
+        <TouchableOpacity
+          style={styles.randomButton}
+          onPress={handleManualRandom}>
+          <MaterialIcons name="casino" size={24} color="white" />
+          <Text style={styles.randomButtonText}>Gerar Build Aleatória</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Salvar Build</Text>
         </TouchableOpacity>
@@ -202,6 +313,23 @@ const BuildEditorScreen = ({ route, navigation }) => {
     </View>
   );
 };
+
+const pickerSelectStyles = StyleSheet.create({
+  inputIOS: {
+    backgroundColor: '#2a2a2a',
+    color: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  inputAndroid: {
+    backgroundColor: '#2a2a2a',
+    color: '#ffffff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -310,6 +438,20 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  randomButton: {
+    flexDirection: 'row',
+    backgroundColor: '#6a1b9a',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  randomButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
 
