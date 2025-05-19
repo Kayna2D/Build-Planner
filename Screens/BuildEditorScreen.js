@@ -35,7 +35,6 @@ const BuildEditorScreen = ({ route, navigation }) => {
     ),
     specialization: '',
     skills: [],
-    favorita: false,
     createdAt: route.params?.buildId ? '' : new Date().toISOString(),
   });
 
@@ -129,7 +128,6 @@ const BuildEditorScreen = ({ route, navigation }) => {
       specialization: especializacaoAleatoria,
       attributes,
       skills: skillsAleatorias,
-      favorita: false,
     });
 
     Alert.alert('Build Aleatória', 'Uma nova build foi gerada!');
@@ -289,16 +287,6 @@ const BuildEditorScreen = ({ route, navigation }) => {
           ))}
         </View>
 
-        <View style={styles.favoriteContainer}>
-          <Text style={styles.label}>Favorito:</Text>
-          <Switch
-            value={build.favorita}
-            onValueChange={(value) => setBuild({ ...build, favorita: value })}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={build.favorita ? '#f5dd4b' : 'f4f3f4'}
-          />
-        </View>
-
         <TouchableOpacity
           style={styles.randomButton}
           onPress={handleManualRandom}>
@@ -397,15 +385,6 @@ const styles = StyleSheet.create({
   },
   skillText: {
     color: '#ffffff',
-  },
-  favoriteContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
   },
   saveButton: {
     position: 'absolute',
