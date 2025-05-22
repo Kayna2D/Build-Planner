@@ -41,7 +41,7 @@ export const deleteBuild = async (id) => {
 
 **Home:** Tela de início exibe os jogos disponíveis e um botão que leva à lista de todas as builds.
 <img src="assets/readme/home1.jpeg"/>
-<img src="assets/readme/home1.jpeg"/>
+<img src="assets/readme/home2.jpeg"/>
 <br />
 
 **Lista de Builds:** Segunda tela mostra as todas as builds ou filtradas por jogo (depende da opção selecionada em home)
