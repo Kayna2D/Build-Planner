@@ -2,6 +2,7 @@
 Computação Móvel
 ## Sobre
 Projeto realizado em React Native com o objetivo de criar e compartilhar builds da série de jogos Dragon Age.
+Link do projeto no Expo: https://snack.expo.dev/@kayna2d/build-planner
 
 ## Funcionalidades
 **Navegação:** Usados os componentes de navegação NavigationContainer e createStackNavigator para explorar as quatro páginas da aplicação.
